@@ -29,4 +29,14 @@
 	 * practising this, we should strive to set a better example in our own work.
 	 */
 
+	$(document).ready(function() {
+		// Initialize Select2 on the multi-select field
+		$('#anom-post-security-lock-example_select').select2({
+			placeholder: 'Select options...',
+			allowClear: true,
+			width: '100%',
+			multiple: true
+		});
+	});
+
 })( jQuery );

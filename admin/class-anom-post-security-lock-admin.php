@@ -75,6 +75,9 @@ class Anom_Post_Security_Lock_Admin {
 
 		wp_enqueue_style( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'css/anom-post-security-lock-admin.css', array(), $this->version, 'all' );
 
+		// Enqueue Select2 CSS
+		wp_enqueue_style( 'select2', 'https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css', array(), '4.1.0', 'all' );
+
 	}
 
 	/**
@@ -96,8 +99,76 @@ class Anom_Post_Security_Lock_Admin {
 		 * class.
 		 */
 
-		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/anom-post-security-lock-admin.js', array( 'jquery' ), $this->version, false );
+		// Enqueue Select2 JS
+		wp_enqueue_script( 'select2', 'https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js', array( 'jquery' ), '4.1.0', false );
+
+		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/anom-post-security-lock-admin.js', array( 'jquery', 'select2' ), $this->version, false );
 
 	}
 
+	/**
+	 * Register the administration menu for this plugin into the WordPress Dashboard menu.
+	 *
+	 * @since    1.0.0
+	 */
+	public function add_plugin_admin_menu() {
+
+		add_submenu_page( 'options-general.php', 'Post Security Lock Settings', 'Post Security Lock', 'manage_options', $this->plugin_name, array( $this, 'display_plugin_setup_page' ) );
+
+	}
+
+	/**
+	 * Add settings action link to the plugins page.
+	 *
+	 * @since    1.0.0
+	 */
+	public function add_action_links( $links ) {
+
+		$settings_link = array( '<a href="' . admin_url( 'options-general.php?page=' . $this->plugin_name ) . '">' . __( 'Settings', $this->plugin_name ) . '</a>', );
+		return array_merge(  $settings_link, $links );
+
+	}
+
+	/**
+	 * Render the settings page for this plugin.
+	 *
+	 * @since    1.0.0
+	 */
+	public function display_plugin_setup_page() {
+
+		include_once( 'partials/' . $this->plugin_name . '-admin-display.php' );
+
+	}
+
+	/**
+	 * Validate fields from admin area plugin settings form ('exopite-lazy-load-xt-admin-display.php')
+	 * @param  mixed $input as field form settings form
+	 * @return mixed as validated fields
+	 */
+	public function validate($input) {
+
+		$options = get_option( $this->plugin_name );
+
+		$options['example_checkbox'] = ( isset( $input['example_checkbox'] ) && ! empty( $input['example_checkbox'] ) ) ? 1 : 0;
+		$options['example_text'] = ( isset( $input['example_text'] ) && ! empty( $input['example_text'] ) ) ? esc_attr( $input['example_text'] ) : 'default';
+		$options['example_textarea'] = ( isset( $input['example_textarea'] ) && ! empty( $input['example_textarea'] ) ) ? sanitize_textarea_field( $input['example_textarea'] ) : 'default';
+
+		// Handle multi-select array
+		if ( isset( $input['example_select'] ) && is_array( $input['example_select'] ) ) {
+			$options['example_select'] = array_map( 'esc_attr', $input['example_select'] );
+		} else {
+			$options['example_select'] = array();
+		}
+
+		return $options;
+
+	}
+
+	public function options_update() {
+
+		register_setting( $this->plugin_name, $this->plugin_name, array(
+		'sanitize_callback' => array( $this, 'validate' ),
+		) );
+
+	}
 }
