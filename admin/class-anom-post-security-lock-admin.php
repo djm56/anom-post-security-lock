@@ -74,9 +74,7 @@ class Anom_Post_Security_Lock_Admin {
 		 */
 
 		wp_enqueue_style( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'css/anom-post-security-lock-admin.css', array(), $this->version, 'all' );
-
-		// Enqueue Select2 CSS
-		wp_enqueue_style( 'select2', 'https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css', array(), '4.1.0', 'all' );
+		wp_enqueue_style( 'select2', plugins_url('../node_modules/select2/dist/css/select2.min.css', __FILE__), array(), '4.1.0', 'all' );
 
 	}
 
@@ -99,11 +97,8 @@ class Anom_Post_Security_Lock_Admin {
 		 * class.
 		 */
 
-		// Enqueue Select2 JS
-		wp_enqueue_script( 'select2', 'https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js', array( 'jquery' ), '4.1.0', false );
-
 		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/anom-post-security-lock-admin.js', array( 'jquery', 'select2' ), $this->version, false );
-
+		wp_enqueue_script( 'select2', plugins_url('../node_modules/select2/dist/js/select2.min.js', __FILE__), array( 'jquery' ), '4.1.0', false );
 	}
 
 	/**
@@ -154,10 +149,10 @@ class Anom_Post_Security_Lock_Admin {
 		$options['example_textarea'] = ( isset( $input['example_textarea'] ) && ! empty( $input['example_textarea'] ) ) ? sanitize_textarea_field( $input['example_textarea'] ) : 'default';
 
 		// Handle multi-select array
-		if ( isset( $input['example_select'] ) && is_array( $input['example_select'] ) ) {
-			$options['example_select'] = array_map( 'esc_attr', $input['example_select'] );
+		if ( isset( $input['select_locked_post_types'] ) && is_array( $input['select_locked_post_types'] ) ) {
+			$options['select_locked_post_types'] = array_map( 'esc_attr', $input['select_locked_post_types'] );
 		} else {
-			$options['example_select'] = array();
+			$options['select_locked_post_types'] = array();
 		}
 
 		return $options;
@@ -167,7 +162,7 @@ class Anom_Post_Security_Lock_Admin {
 	public function options_update() {
 
 		register_setting( $this->plugin_name, $this->plugin_name, array(
-		'sanitize_callback' => array( $this, 'validate' ),
+			'sanitize_callback' => array( $this, 'validate' ),
 		) );
 
 	}

@@ -24,11 +24,11 @@ if ( ! defined( 'WPINC' ) ) die;
         //Grab all options
         $options = get_option( $this->plugin_name );
 
-        $example_select = ( isset( $options['example_select'] ) && ! empty( $options['example_select'] ) ) ? $options['example_select'] : array();
-        if ( ! is_array( $example_select ) ) {
-            $example_select = array( $example_select );
+        $select_locked_post_types = ( isset( $options['select_locked_post_types'] ) && ! empty( $options['select_locked_post_types'] ) ) ? $options['select_locked_post_types'] : array();
+        if ( ! is_array( $select_locked_post_types ) ) {
+            $select_locked_post_types = array( $select_locked_post_types );
         }
-        $saved = $example_select; // Create $saved variable for compatibility with your option syntax
+        $saved = $select_locked_post_types; // Create $saved variable for compatibility with your option syntax
         $example_text = ( isset( $options['example_text'] ) && ! empty( $options['example_text'] ) ) ? esc_attr( $options['example_text'] ) : 'default';
         $example_textarea = ( isset( $options['example_textarea'] ) && ! empty( $options['example_textarea'] ) ) ? sanitize_textarea_field( $options['example_textarea'] ) : 'default';
         $example_checkbox = ( isset( $options['example_checkbox'] ) && ! empty( $options['example_checkbox'] ) ) ? 1 : 0;
@@ -41,18 +41,49 @@ if ( ! defined( 'WPINC' ) ) die;
     <table class="form-table">
 		<tbody>
 			<tr>
-				<th scope="row"><?php esc_attr_e( 'Example Multi-Select', $this->plugin_name ); ?></th>
+				<th scope="row"><?php esc_attr_e( 'Locked Post Types', $this->plugin_name ); ?></th>
 				<td>
 					<fieldset>
 						<legend class="screen-reader-text">
-							<span><?php esc_attr_e( 'Example Multi-Select', $this->plugin_name ); ?></span>
+							<span><?php esc_attr_e( 'Select Locked Post Types', $this->plugin_name ); ?></span>
 						</legend>
-						<p class="description"><?php esc_attr_e( 'Select one or more options from the list below.', $this->plugin_name ); ?></p>
-						<select name="<?php echo $this->plugin_name; ?>[example_select][]" id="<?php echo $this->plugin_name; ?>-example_select" multiple="multiple">
-							<option value="location" <?php echo (in_array('location', $saved) ? 'selected' : ''); ?>>Location</option>
-							<option value="role" <?php echo (in_array('role', $saved) ? 'selected' : ''); ?>>Role</option>
-							<option value="functional" <?php echo (in_array('functional', $saved) ? 'selected' : ''); ?>>Functional Area</option>
-							<option value="industry" <?php echo (in_array('industry', $saved) ? 'selected' : ''); ?>>Industry</option>
+						<p class="description"><?php esc_attr_e( 'Select the post types that should have security lock features enabled.', $this->plugin_name ); ?></p>
+						<select name="<?php echo $this->plugin_name; ?>[select_locked_post_types][]" id="<?php echo $this->plugin_name; ?>-select_locked_post_types" multiple="multiple">
+							<?php
+
+							$post_types = get_post_types( array(
+								'public'   => true,
+								'show_ui'  => true,
+								'_builtin' => false
+							), 'objects' );
+
+							$builtin_post_types = get_post_types( array(
+								'public'   => true,
+								'show_ui'  => true,
+								'_builtin' => true
+							), 'objects' );
+
+							$all_post_types = array_merge( $builtin_post_types, $post_types );
+
+							uasort( $all_post_types, function( $a, $b ) {
+								return strcmp( $a->label, $b->label );
+							});
+
+							foreach ( $all_post_types as $post_type ) {
+								if ( $post_type->name === 'attachment' ) {
+									continue;
+								}
+
+								$selected = in_array( $post_type->name, $saved ) ? 'selected' : '';
+								printf(
+									'<option value="%s" %s>%s (%s)</option>',
+									esc_attr( $post_type->name ),
+									$selected,
+									esc_html( $post_type->label ),
+									esc_html( $post_type->name )
+								);
+							}
+							?>
 						</select>
 					</fieldset>
 				</td>

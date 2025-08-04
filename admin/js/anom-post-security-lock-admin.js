@@ -31,8 +31,8 @@
 
 	$(document).ready(function() {
 		// Initialize Select2 on the multi-select field
-		$('#anom-post-security-lock-example_select').select2({
-			placeholder: 'Select options...',
+		$('#anom-post-security-lock-select_locked_post_types').select2({
+			placeholder: 'Select post types to lock...',
 			allowClear: true,
 			width: '100%',
 			multiple: true
