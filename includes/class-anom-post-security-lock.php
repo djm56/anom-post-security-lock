@@ -78,7 +78,6 @@ class Anom_Post_Security_Lock {
 		$this->set_locale();
 		$this->define_admin_hooks();
 		$this->define_public_hooks();
-
 	}
 
 	/**
@@ -103,27 +102,26 @@ class Anom_Post_Security_Lock {
 		 * The class responsible for orchestrating the actions and filters of the
 		 * core plugin.
 		 */
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-anom-post-security-lock-loader.php';
+		require_once plugin_dir_path( __DIR__ ) . 'includes/class-anom-post-security-lock-loader.php';
 
 		/**
 		 * The class responsible for defining internationalization functionality
 		 * of the plugin.
 		 */
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-anom-post-security-lock-i18n.php';
+		require_once plugin_dir_path( __DIR__ ) . 'includes/class-anom-post-security-lock-i18n.php';
 
 		/**
 		 * The class responsible for defining all actions that occur in the admin area.
 		 */
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/class-anom-post-security-lock-admin.php';
+		require_once plugin_dir_path( __DIR__ ) . 'admin/class-anom-post-security-lock-admin.php';
 
 		/**
 		 * The class responsible for defining all actions that occur in the public-facing
 		 * side of the site.
 		 */
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'public/class-anom-post-security-lock-public.php';
+		require_once plugin_dir_path( __DIR__ ) . 'public/class-anom-post-security-lock-public.php';
 
 		$this->loader = new Anom_Post_Security_Lock_Loader();
-
 	}
 
 	/**
@@ -140,7 +138,6 @@ class Anom_Post_Security_Lock {
 		$plugin_i18n = new Anom_Post_Security_Lock_i18n();
 
 		$this->loader->add_action( 'plugins_loaded', $plugin_i18n, 'load_plugin_textdomain' );
-
 	}
 
 	/**
@@ -177,7 +174,6 @@ class Anom_Post_Security_Lock {
 
 		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_styles' );
 		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_scripts' );
-
 	}
 
 	/**
@@ -219,5 +215,4 @@ class Anom_Post_Security_Lock {
 	public function get_version() {
 		return $this->version;
 	}
-
 }

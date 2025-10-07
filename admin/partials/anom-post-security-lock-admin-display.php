@@ -11,34 +11,36 @@
  * @package    Anom_Post_Security_Lock
  * @subpackage Anom_Post_Security_Lock/admin/partials
  */
-if ( ! defined( 'WPINC' ) ) die;
+if ( ! defined( 'WPINC' ) ) {
+	die;
+}
 ?>
 
 <!-- This file should primarily consist of HTML with a little bit of PHP. -->
 <!-- This file should primarily consist of HTML with a little bit of PHP. -->
 <div class="wrap">
-    <h2>Plugin Name <?php esc_attr_e('Options', 'plugin_name' ); ?></h2>
+	<h2>Plugin Name <?php esc_attr_e( 'Options', 'plugin_name' ); ?></h2>
 
-    <form method="post" name="<?php echo $this->plugin_name; ?>" action="options.php">
-    <?php
-        //Grab all options
-        $options = get_option( $this->plugin_name );
+	<form method="post" name="<?php echo $this->plugin_name; ?>" action="options.php">
+	<?php
+		// Grab all options
+		$options = get_option( $this->plugin_name );
 
-        $select_locked_post_types = ( isset( $options['select_locked_post_types'] ) && ! empty( $options['select_locked_post_types'] ) ) ? $options['select_locked_post_types'] : array();
-        if ( ! is_array( $select_locked_post_types ) ) {
-            $select_locked_post_types = array( $select_locked_post_types );
-        }
-        $saved = $select_locked_post_types; // Create $saved variable for compatibility with your option syntax
-        $example_text = ( isset( $options['example_text'] ) && ! empty( $options['example_text'] ) ) ? esc_attr( $options['example_text'] ) : 'default';
-        $example_textarea = ( isset( $options['example_textarea'] ) && ! empty( $options['example_textarea'] ) ) ? sanitize_textarea_field( $options['example_textarea'] ) : 'default';
-        $example_checkbox = ( isset( $options['example_checkbox'] ) && ! empty( $options['example_checkbox'] ) ) ? 1 : 0;
+		$select_locked_post_types = ( isset( $options['select_locked_post_types'] ) && ! empty( $options['select_locked_post_types'] ) ) ? $options['select_locked_post_types'] : array();
+	if ( ! is_array( $select_locked_post_types ) ) {
+		$select_locked_post_types = array( $select_locked_post_types );
+	}
+		$saved            = $select_locked_post_types; // Create $saved variable for compatibility with your option syntax
+		$example_text     = ( isset( $options['example_text'] ) && ! empty( $options['example_text'] ) ) ? esc_attr( $options['example_text'] ) : 'default';
+		$example_textarea = ( isset( $options['example_textarea'] ) && ! empty( $options['example_textarea'] ) ) ? sanitize_textarea_field( $options['example_textarea'] ) : 'default';
+		$example_checkbox = ( isset( $options['example_checkbox'] ) && ! empty( $options['example_checkbox'] ) ) ? 1 : 0;
 
-        settings_fields($this->plugin_name);
-        do_settings_sections($this->plugin_name);
+		settings_fields( $this->plugin_name );
+		do_settings_sections( $this->plugin_name );
 
-    ?>
+	?>
 
-    <table class="form-table">
+	<table class="form-table">
 		<tbody>
 			<tr>
 				<th scope="row"><?php esc_attr_e( 'Locked Post Types', $this->plugin_name ); ?></th>
@@ -51,23 +53,32 @@ if ( ! defined( 'WPINC' ) ) die;
 						<select name="<?php echo $this->plugin_name; ?>[select_locked_post_types][]" id="<?php echo $this->plugin_name; ?>-select_locked_post_types" multiple="multiple">
 							<?php
 
-							$post_types = get_post_types( array(
-								'public'   => true,
-								'show_ui'  => true,
-								'_builtin' => false
-							), 'objects' );
+							$post_types = get_post_types(
+								array(
+									'public'   => true,
+									'show_ui'  => true,
+									'_builtin' => false,
+								),
+								'objects'
+							);
 
-							$builtin_post_types = get_post_types( array(
-								'public'   => true,
-								'show_ui'  => true,
-								'_builtin' => true
-							), 'objects' );
+							$builtin_post_types = get_post_types(
+								array(
+									'public'   => true,
+									'show_ui'  => true,
+									'_builtin' => true,
+								),
+								'objects'
+							);
 
 							$all_post_types = array_merge( $builtin_post_types, $post_types );
 
-							uasort( $all_post_types, function( $a, $b ) {
-								return strcmp( $a->label, $b->label );
-							});
+							uasort(
+								$all_post_types,
+								function ( $a, $b ) {
+									return strcmp( $a->label, $b->label );
+								}
+							);
 
 							foreach ( $all_post_types as $post_type ) {
 								if ( $post_type->name === 'attachment' ) {
@@ -95,7 +106,15 @@ if ( ! defined( 'WPINC' ) ) die;
 						<legend class="screen-reader-text">
 							<span><?php esc_attr_e( 'Example Text', $this->plugin_name ); ?></span>
 						</legend>
-						<input type="text" class="example_text" id="<?php echo $this->plugin_name; ?>-example_text" name="<?php echo $this->plugin_name; ?>[example_text]" value="<?php if( ! empty( $example_text ) ) echo $example_text; else echo 'default'; ?>"/>
+						<input type="text" class="example_text" id="<?php echo $this->plugin_name; ?>-example_text" name="<?php echo $this->plugin_name; ?>[example_text]" value="
+						<?php
+						if ( ! empty( $example_text ) ) {
+							echo $example_text;
+						} else {
+							echo 'default';
+						}
+						?>
+						"/>
 					</fieldset>
 				</td>
 			</tr>
@@ -106,7 +125,15 @@ if ( ! defined( 'WPINC' ) ) die;
 						<legend class="screen-reader-text">
 							<span><?php esc_attr_e( 'Example Textarea', $this->plugin_name ); ?></span>
 						</legend>
-						<textarea class="example_textarea" id="<?php echo $this->plugin_name; ?>-example_textarea" name="<?php echo $this->plugin_name; ?>[example_textarea]" rows="4" cols="50"><?php if( ! empty( $example_textarea ) ) echo $example_textarea; else echo 'default'; ?></textarea>
+						<textarea class="example_textarea" id="<?php echo $this->plugin_name; ?>-example_textarea" name="<?php echo $this->plugin_name; ?>[example_textarea]" rows="4" cols="50">
+						<?php
+						if ( ! empty( $example_textarea ) ) {
+							echo $example_textarea;
+						} else {
+							echo 'default';
+						}
+						?>
+						</textarea>
 					</fieldset>
 				</td>
 			</tr>
@@ -119,13 +146,13 @@ if ( ! defined( 'WPINC' ) ) die;
 						</legend>
 						<label for="<?php echo $this->plugin_name; ?>-example_checkbox">
 							<input type="checkbox" id="<?php echo $this->plugin_name; ?>-example_checkbox" name="<?php echo $this->plugin_name; ?>[example_checkbox]" value="1" <?php checked( $example_checkbox, 1 ); ?> />
-							<span><?php esc_attr_e('Example Checkbox', $this->plugin_name ); ?></span>
+							<span><?php esc_attr_e( 'Example Checkbox', $this->plugin_name ); ?></span>
 						</label>
 					</fieldset>
 				</td>
 			</tr>
 		</tbody>
 	</table>
-    <?php submit_button( __( 'Save all changes', 'plugin_name' ), 'primary','submit', TRUE ); ?>
-    </form>
+	<?php submit_button( __( 'Save all changes', 'plugin_name' ), 'primary', 'submit', true ); ?>
+	</form>
 </div>

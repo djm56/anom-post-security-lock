@@ -77,6 +77,5 @@ function run_anom_post_security_lock() {
 
 	$plugin = new Anom_Post_Security_Lock();
 	$plugin->run();
-
 }
 run_anom_post_security_lock();
