@@ -164,7 +164,6 @@ class Anom_Post_Security_Lock {
 		$this->loader->add_action( 'save_post', $plugin_admin, 'save_lock_post_meta' );
 
 		$this->loader->add_action( 'admin_init', $plugin_admin, 'add_lockdown_admin' );
-
 	}
 
 	/**
