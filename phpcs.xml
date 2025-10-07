@@ -1,13 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<ruleset name="WPEmergeTheme">
-	<description>Theme Coding Standard</description>
-
+<ruleset name="Anom Post Security Lock Coding Standard">
+	<description>Plugin Coding Standard</description>
+	<file>./</file>
 	<!-- Excludes -->
-	<exclude-pattern>app/src/*</exclude-pattern>
-	<exclude-pattern>dist/*</exclude-pattern>
 	<exclude-pattern>node_modules/*</exclude-pattern>
 	<exclude-pattern>vendor/*</exclude-pattern>
-	<exclude-pattern>wpcs/*</exclude-pattern>
 	<exclude-pattern>*/*.css</exclude-pattern>
 	<exclude-pattern>*/*.js</exclude-pattern>
 
