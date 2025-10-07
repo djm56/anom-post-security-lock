@@ -164,4 +164,41 @@ class Anom_Post_Security_Lock_Admin {
 			)
 		);
 	}
+
+	public function add_lock_post_meta_box() {
+		foreach (get_post_types(['public' => true], 'names') as $post_type) {
+			add_meta_box(
+				'lock_post_meta_box',
+				__('Lock Post', 'your-plugin-slug'),
+				[$this, 'render_lock_post_meta_box'],
+				$post_type,
+				'side',
+				'high'
+			);
+		}
+	}
+
+	public function render_lock_post_meta_box($post) {
+		$value = get_post_meta($post->ID, '_lock_post', true);
+		?>
+		<label><input type="radio" name="lock_post" value="true" <?php checked($value, 'true'); ?>> <?php _e('Locked', 'your-plugin-slug'); ?></label><br>
+		<label><input type="radio" name="lock_post" value="false" <?php checked($value, 'false'); ?>> <?php _e('Unlocked', 'your-plugin-slug'); ?></label>
+		<?php
+	}
+
+	public function save_lock_post_meta($post_id) {
+		if (isset($_POST['lock_post'])) {
+			update_post_meta($post_id, '_lock_post', sanitize_text_field($_POST['lock_post']));
+		}
+	}
+
+	public function register_lock_post_meta() {
+		register_post_meta('', '_lock_post', [
+			'show_in_rest' => true,
+			'type'         => 'string',
+			'single'       => true,
+			'default'      => 'false',
+			'auth_callback' => function() { return current_user_can('edit_posts'); }
+		]);
+	}
 }

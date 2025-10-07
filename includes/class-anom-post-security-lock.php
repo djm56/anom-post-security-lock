@@ -159,6 +159,11 @@ class Anom_Post_Security_Lock {
 		$this->loader->add_action( 'admin_menu', $plugin_admin, 'add_plugin_admin_menu' );
 		$plugin_basename = plugin_basename( plugin_dir_path( __DIR__ ) . $this->plugin_name . '.php' );
 		$this->loader->add_filter( 'plugin_action_links_' . $plugin_basename, $plugin_admin, 'add_action_links' );
+
+		$this->loader->add_action( 'add_meta_boxes', $plugin_admin, 'add_lock_post_meta_box' );
+		$this->loader->add_action( 'save_post', $plugin_admin, 'save_lock_post_meta' );
+
+		$this->loader->add_action( 'init', $plugin_admin, 'register_lock_post_meta' );
 	}
 
 	/**
