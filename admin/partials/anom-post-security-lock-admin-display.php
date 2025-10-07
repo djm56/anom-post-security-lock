@@ -100,21 +100,26 @@ if ( ! defined( 'WPINC' ) ) {
 				</td>
 			</tr>
 			<tr>
-				<th scope="row"><?php esc_attr_e( 'Example Text.', $this->plugin_name ); ?></th>
+				<th scope="row"><?php esc_attr_e( 'Unlock Admins.', $this->plugin_name ); ?></th>
 				<td>
 					<fieldset>
 						<legend class="screen-reader-text">
-							<span><?php esc_attr_e( 'Example Text', $this->plugin_name ); ?></span>
+							<span><?php esc_attr_e( 'Unlock Admins', $this->plugin_name ); ?></span>
 						</legend>
-						<input type="text" class="example_text" id="<?php echo $this->plugin_name; ?>-example_text" name="<?php echo $this->plugin_name; ?>[example_text]" value="
 						<?php
-						if ( ! empty( $example_text ) ) {
-							echo $example_text;
-						} else {
-							echo 'default';
-						}
+						$post_security_usernames = unserialize(POST_SECURITY_USERNAMES);
 						?>
-						"/>
+						<input
+							type="text"
+							class="example_text"
+							id="<?php echo esc_attr($this->plugin_name); ?>-readonly_usernames"
+							value="<?php echo esc_attr(implode(',', $post_security_usernames)); ?>"
+							readonly
+							disabled
+						/>
+						<p class="description">
+							Usernames are set in <code>wp-config.php</code> and cannot be edited here.
+						</p>
 					</fieldset>
 				</td>
 			</tr>
