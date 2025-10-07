@@ -163,7 +163,7 @@ class Anom_Post_Security_Lock {
 		$this->loader->add_action( 'add_meta_boxes', $plugin_admin, 'add_lock_post_meta_box' );
 		$this->loader->add_action( 'save_post', $plugin_admin, 'save_lock_post_meta' );
 
-		$this->loader->add_action( 'init', $plugin_admin, 'register_lock_post_meta' );
+		// $this->loader->add_action( 'init', $plugin_admin, 'register_lock_post_meta' );
 	}
 
 	/**

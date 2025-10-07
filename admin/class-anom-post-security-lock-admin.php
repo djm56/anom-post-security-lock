@@ -166,11 +166,15 @@ class Anom_Post_Security_Lock_Admin {
 	}
 
 	public function add_lock_post_meta_box() {
-		foreach (get_post_types(['public' => true], 'names') as $post_type) {
+		$select_locked_post_types = $this->get_locked_post_types();
+		foreach (get_post_types( array( 'public' => true ), 'names' ) as $post_type) {
+			if ( ! in_array( $post_type, $select_locked_post_types )) {
+				continue;
+			}
 			add_meta_box(
 				'lock_post_meta_box',
-				__('Lock Post', 'your-plugin-slug'),
-				[$this, 'render_lock_post_meta_box'],
+				__( 'Lock Post', $this->plugin_name ),
+				array( $this, 'render_lock_post_meta_box' ),
 				$post_type,
 				'side',
 				'high'
@@ -178,27 +182,33 @@ class Anom_Post_Security_Lock_Admin {
 		}
 	}
 
-	public function render_lock_post_meta_box($post) {
-		$value = get_post_meta($post->ID, '_lock_post', true);
-		?>
-		<label><input type="radio" name="lock_post" value="true" <?php checked($value, 'true'); ?>> <?php _e('Locked', 'your-plugin-slug'); ?></label><br>
-		<label><input type="radio" name="lock_post" value="false" <?php checked($value, 'false'); ?>> <?php _e('Unlocked', 'your-plugin-slug'); ?></label>
-		<?php
-	}
-
-	public function save_lock_post_meta($post_id) {
-		if (isset($_POST['lock_post'])) {
-			update_post_meta($post_id, '_lock_post', sanitize_text_field($_POST['lock_post']));
+	public function render_lock_post_meta_box( $post ) {
+		$select_locked_post_types = $this->get_locked_post_types();
+		foreach ($select_locked_post_types as $post_type) {
+			$current_post_type = get_post_type( $post->ID );
+			if ($current_post_type !== $post_type) {
+				continue;
+			}
+			$value = get_post_meta( $post->ID, '_lock_post', true );
+			?>
+		<label><input type="radio" name="lock_post" value="true" <?php checked( $value, 'true' ); ?>> <?php _e( 'Locked', $this->plugin_name ); ?></label><br>
+		<label><input type="radio" name="lock_post" value="false" <?php checked( $value, 'false' ); ?>> <?php _e( 'Unlocked', $this->plugin_name ); ?></label>
+			<?php
 		}
 	}
 
-	public function register_lock_post_meta() {
-		register_post_meta('', '_lock_post', [
-			'show_in_rest' => true,
-			'type'         => 'string',
-			'single'       => true,
-			'default'      => 'false',
-			'auth_callback' => function() { return current_user_can('edit_posts'); }
-		]);
+	public function save_lock_post_meta( $post_id ) {
+		if (isset( $_POST['lock_post'] )) {
+			update_post_meta( $post_id, '_lock_post', sanitize_text_field( $_POST['lock_post'] ) );
+		}
+	}
+
+	public function get_locked_post_types() {
+		$options = $this->get_plugin_options();
+		return isset( $options['select_locked_post_types'] ) ? $options['select_locked_post_types'] : array();
+	}
+
+	private function get_plugin_options() {
+		return get_option( $this->plugin_name );
 	}
 }

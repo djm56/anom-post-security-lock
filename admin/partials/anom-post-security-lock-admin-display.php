@@ -107,13 +107,13 @@ if ( ! defined( 'WPINC' ) ) {
 							<span><?php esc_attr_e( 'Unlock Admins', $this->plugin_name ); ?></span>
 						</legend>
 						<?php
-						$post_security_usernames = unserialize(POST_SECURITY_USERNAMES);
+						$post_security_usernames = unserialize( POST_SECURITY_USERNAMES );
 						?>
 						<input
 							type="text"
 							class="example_text"
-							id="<?php echo esc_attr($this->plugin_name); ?>-readonly_usernames"
-							value="<?php echo esc_attr(implode(',', $post_security_usernames)); ?>"
+							id="<?php echo esc_attr( $this->plugin_name ); ?>-readonly_usernames"
+							value="<?php echo esc_attr( implode( ',', $post_security_usernames ) ); ?>"
 							readonly
 							disabled
 						/>
