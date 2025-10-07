@@ -154,6 +154,11 @@ class Anom_Post_Security_Lock_Admin {
 		return $options;
 	}
 
+	/**
+	 * Register the plugin settings.
+	 *
+	 * @since    1.0.0
+	 */
 	public function options_update() {
 
 		register_setting(
@@ -165,6 +170,11 @@ class Anom_Post_Security_Lock_Admin {
 		);
 	}
 
+	/**
+	 * Add meta box for locking posts.
+	 *
+	 * @since    1.0.0
+	 */
 	public function add_lock_post_meta_box() {
 		$select_locked_post_types = $this->get_locked_post_types();
 		foreach (get_post_types( array( 'public' => true ), 'names' ) as $post_type) {
@@ -182,6 +192,12 @@ class Anom_Post_Security_Lock_Admin {
 		}
 	}
 
+	/**
+	 * Render the lock post meta box.
+	 *
+	 * @param WP_Post $post The post object.
+	 * @since    1.0.0
+	 */
 	public function render_lock_post_meta_box( $post ) {
 		$select_locked_post_types = $this->get_locked_post_types();
 		foreach ($select_locked_post_types as $post_type) {
@@ -197,17 +213,156 @@ class Anom_Post_Security_Lock_Admin {
 		}
 	}
 
+	/**
+	 * Save the lock post meta data.
+	 *
+	 * @param int $post_id The post ID.
+	 * @since    1.0.0
+	 */
 	public function save_lock_post_meta( $post_id ) {
 		if (isset( $_POST['lock_post'] )) {
 			update_post_meta( $post_id, '_lock_post', sanitize_text_field( $_POST['lock_post'] ) );
 		}
 	}
 
+	/**
+	 * Add lockdown functionality to admin.
+	 *
+	 * @since    1.0.0
+	 */
+	public function add_lockdown_admin() {
+		$select_locked_post_types = $this->get_locked_post_types();
+		foreach ($select_locked_post_types as $post_type) {
+			$post_type = sanitize_key( $post_type );
+
+			add_filter( "manage_{$post_type}_posts_columns", array( $this, 'add_lockdown_column' ) );
+
+			add_action(
+				"manage_{$post_type}_posts_custom_column",
+				array( $this, 'show_lockdown_column' ),
+				10,
+				2
+			);
+
+			add_filter(
+				"manage_edit-{$post_type}_sortable_columns",
+				array( $this, 'make_lockdown_sortable' )
+			);
+
+			add_filter(
+				"bulk_actions-edit-{$post_type}",
+				array( $this, 'add_lockdown_bulk_actions' )
+			);
+			add_filter(
+				"handle_bulk_actions-edit-{$post_type}",
+				array( $this, 'handle_lockdown_bulk_actions' ),
+				10,
+				3
+			);
+		}
+	}
+
+	/**
+	 * Get the locked post types from options.
+	 *
+	 * @return array Array of locked post types.
+	 * @since    1.0.0
+	 */
 	public function get_locked_post_types() {
 		$options = $this->get_plugin_options();
 		return isset( $options['select_locked_post_types'] ) ? $options['select_locked_post_types'] : array();
 	}
 
+	/**
+	 * Adds a 'Lockdown Status' column to the posts list table for specified post types.
+	 *
+	 * @param array $columns Existing columns.
+	 * @return array Modified columns.
+	 */
+	public function add_lockdown_column( $columns ) {
+		$columns['lockdown_post'] = __( '🔒 Lock Status', 'airfleet' );
+		return $columns;
+	}
+
+	/**
+	 * Displays the lockdown status in the custom column.
+	 *
+	 * @param string $column  The name of the column.
+	 * @param int    $post_id The ID of the current post.
+	 * @return void
+	 */
+	public function show_lockdown_column( $column, $post_id ) {
+		if ( 'lockdown_post' === $column ) {
+			$locked = get_post_meta( $post_id, '_lock_post', true );
+			echo $locked ? '🔒 Locked' : '✏️ Editable';
+		}
+	}
+
+	/**
+	 * Makes the 'Lockdown Status' column sortable.
+	 *
+	 * @param array $columns Sortable columns.
+	 * @return array Modified sortable columns.
+	 */
+	function make_lockdown_sortable( $columns ) {
+		$columns['lockdown_post'] = 'lockdown_post';
+		return $columns;
+	}
+
+	/**
+	 * Adds 'Lock Posts' and 'Unlock Posts' to bulk actions.
+	 *
+	 * @param array $bulk_actions Existing bulk actions.
+	 * @return array Modified bulk actions.
+	 */
+	function add_lockdown_bulk_actions( $bulk_actions ) {
+		$bulk_actions['lock_posts']   = __( 'Lock Selected Content', 'airfleet' );
+		$bulk_actions['unlock_posts'] = __( 'Unlock Selected Content', 'airfleet' );
+
+		return $bulk_actions;
+	}
+
+	/**
+	 * Handles the lockdown bulk actions for locking or unlocking posts.
+	 *
+	 * @param string $redirect_url The URL to redirect to after processing.
+	 * @param string $action       The bulk action being performed.
+	 * @param array  $post_ids     An array of post IDs selected for the action.
+	 * @return string The redirect URL.
+	 */
+	function handle_lockdown_bulk_actions( $redirect_url, $action, $post_ids ) {
+		if ( 'unlock_posts' === $action && ! check_allowed_unlock_admins() ) {
+			set_transient(
+				'lockdown_error_' . get_current_user_id(),
+				__( 'Permission denied: You do not have the required permissions to unlock content. Please contact a unlock administrator who has unlock permissions.', 'airfleet' ),
+				60,
+			);
+			return $redirect_url;
+		}
+
+		if ( ! in_array( $action, array( 'lock_posts', 'unlock_posts' ) ) ) {
+			return $redirect_url;
+		}
+
+		$value = ( 'lock_posts' === $action ) ? 1 : 0;
+
+		foreach ( $post_ids as $post_id ) {
+			if ( current_user_can( 'edit_post', $post_id ) ) {
+				update_field( 'lockdown_post', $value, $post_id );
+			}
+		}
+
+		$redirect_url = add_query_arg( 'bulk_lockdown_processed', count( $post_ids ), $redirect_url );
+
+		return $redirect_url;
+	}
+
+	/**
+	 * Get the plugin options.
+	 *
+	 * @return array Plugin options.
+	 * @since    1.0.0
+	 */
 	private function get_plugin_options() {
 		return get_option( $this->plugin_name );
 	}
